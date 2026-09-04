@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/Shared.Contracts/Shared.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Accounts/">
+    <Project Path="src/Services/Accounts/Accounts.Api/Accounts.Api.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Application/Accounts.Application.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Domain/Accounts.Domain.csproj" />
+    <Project Path="src/Services/Accounts/Accounts.Infrastructure/Accounts.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Clients/">
+    <Project Path="src/Services/Clients/Clients.Api/Clients.Api.csproj" />
+    <Project Path="src/Services/Clients/Clients.Application/Clients.Application.csproj" />
+    <Project Path="src/Services/Clients/Clients.Domain/Clients.Domain.csproj" />
+    <Project Path="src/Services/Clients/Clients.Infrastructure/Clients.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Accounts.UnitTests/Accounts.UnitTests.csproj" />
+    <Project Path="tests/Clients.UnitTests/Clients.UnitTests.csproj" />
+    <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
+  </Folder>
+</Solution>
