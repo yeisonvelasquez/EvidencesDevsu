@@ -18,6 +18,7 @@ public sealed class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExce
             {
                 NotFoundException => (HttpStatusCode.NotFound, "Recurso no encontrado"),
                 ConflictException => (HttpStatusCode.Conflict, "Conflicto"),
+                ValidationException => (HttpStatusCode.UnprocessableEntity, "Datos inválidos"),
                 DomainException => (HttpStatusCode.BadRequest, "Datos inválidos"),
                 _ => (HttpStatusCode.InternalServerError, "Error interno")
             };

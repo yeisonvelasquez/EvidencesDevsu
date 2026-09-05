@@ -11,7 +11,7 @@ La solución contiene dos microservicios independientes:
 
 Cada servicio tiene sus propias capas `Api`, `Application`, `Domain` e `Infrastructure`. Cada uno utiliza una base de datos PostgreSQL independiente. `clientId` se conserva como referencia lógica y no existe una foreign key entre bases de datos.
 
-Los cambios de clientes se publican como el evento `client.changed` en RabbitMQ. El servicio de cuentas consume el evento y mantiene una proyección local idempotente. Esto evita llamadas síncronas entre microservicios y permite escalar cada servicio de forma independiente.
+Los cambios de clientes se almacenan primero en un Outbox transaccional y luego se publican como el evento `client.changed` en RabbitMQ mediante un proceso en segundo plano con reintentos. El servicio de cuentas consume el evento y mantiene una proyección local idempotente. Esto evita llamadas síncronas entre microservicios y permite escalar cada servicio de forma independiente.
 
 ### Consistencia eventual
 
@@ -79,13 +79,15 @@ Las rutas están versionadas bajo `/api/v1`.
 ### Clientes
 
 - `GET /api/v1/clientes`
-- `GET /api/v1/clientes/{id}`
+- `GET /api/v1/clientes/{clientId}`
 - `POST /api/v1/clientes`
-- `PUT /api/v1/clientes/{id}`
-- `PATCH /api/v1/clientes/{id}`
-- `DELETE /api/v1/clientes/{id}`
+- `PUT /api/v1/clientes/{clientId}`
+- `PATCH /api/v1/clientes/{clientId}`
+- `DELETE /api/v1/clientes/{clientId}`
 
 La contraseña de entrada nunca se persiste en texto plano: se almacena como hash BCrypt y nunca se retorna en una respuesta.
+
+`ClientId` es un `Guid` estable y constituye la clave primaria de `clients`. Al crear un cliente se genera automáticamente; las cuentas conservan ese mismo valor como referencia lógica, sin foreign key entre bases de datos.
 
 ### Cuentas
 
@@ -145,9 +147,11 @@ Incluye pruebas unitarias de `Client` y `Account`, más una prueba de integraci�
 - Los movimientos no se editan ni se eliminan; una corrección debe registrarse como un movimiento compensatorio.
 - Se usa `decimal(18,2)` para dinero.
 - EF Core aplica índices únicos para `client_id`, identificación y número de cuenta.
-- La concurrencia de cuenta se controla mediante la columna de versión configurada como `rowversion` lógica en EF Core.
+- La concurrencia de cuenta se controla mediante un token entero de versión administrado por el dominio y configurado como token de concurrencia en EF Core para PostgreSQL.
 - La clave de idempotencia de movimientos es única cuando está presente.
 - La semilla es idempotente y usa contraseñas hash.
+- El patrón Outbox evita perder eventos si RabbitMQ no está disponible al confirmar un cliente.
+- La creación de cuentas y movimientos valida el cliente contra la proyección local; mientras el evento aún no se procesa, la operación puede rechazarse temporalmente como parte de la consistencia eventual.
 
 ## Colección Postman
 

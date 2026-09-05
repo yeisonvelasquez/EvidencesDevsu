@@ -28,13 +28,24 @@ static async Task SeedAsync(WebApplication app)
     await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<AccountsDbContext>();
     await db.Database.EnsureCreatedAsync();
-    if (await db.Accounts.AnyAsync()) return;
     var clients = new[]
     {
         Guid.Parse("10000000-0000-0000-0000-000000000001"),
         Guid.Parse("10000000-0000-0000-0000-000000000002"),
         Guid.Parse("10000000-0000-0000-0000-000000000003")
     };
+    if (!await db.ClientProjections.AnyAsync())
+    {
+        db.ClientProjections.AddRange(
+            new ClientProjection { ClientId = clients[0], FullName = "Jose Lema", IsActive = true, UpdatedAt = DateTimeOffset.UtcNow },
+            new ClientProjection { ClientId = clients[1], FullName = "Marianela Montalvo", IsActive = true, UpdatedAt = DateTimeOffset.UtcNow },
+            new ClientProjection { ClientId = clients[2], FullName = "Juan Osorio", IsActive = true, UpdatedAt = DateTimeOffset.UtcNow });
+    }
+    if (await db.Accounts.AnyAsync())
+    {
+        await db.SaveChangesAsync();
+        return;
+    }
     db.Accounts.AddRange(new Accounts.Domain.Account("478758", "Savings", 2000, clients[0]), new Accounts.Domain.Account("225487", "Checking", 100, clients[1]), new Accounts.Domain.Account("495878", "Savings", 0, clients[2]), new Accounts.Domain.Account("496825", "Savings", 540, clients[1]), new Accounts.Domain.Account("585545", "Checking", 1000, clients[0]));
     await db.SaveChangesAsync();
 }

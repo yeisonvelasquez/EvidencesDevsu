@@ -24,6 +24,7 @@ public sealed record StatementAccount(string AccountNumber, string AccountType, 
 /// <summary>Puerto de persistencia de cuentas.</summary>
 public interface IAccountRepository
 {
+    Task<bool> IsClientActiveAsync(Guid clientId, CancellationToken cancellationToken);
     Task<IReadOnlyList<Account>> ListAsync(Guid? clientId, CancellationToken cancellationToken);
     Task<Account?> GetAsync(Guid id, CancellationToken cancellationToken);
     Task<bool> ExistsByNumberAsync(string accountNumber, Guid? excludingId, CancellationToken cancellationToken);

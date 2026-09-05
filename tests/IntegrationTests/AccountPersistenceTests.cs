@@ -14,6 +14,7 @@ public sealed class AccountPersistenceTests
         await using var db = new AccountsDbContext(options);
         db.Database.EnsureCreated();
         var account = new Account("225487", "Checking", 100, Guid.NewGuid());
+        db.ClientProjections.Add(new ClientProjection { ClientId = account.ClientId, FullName = "Test Client", IsActive = true, UpdatedAt = DateTimeOffset.UtcNow });
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
         var service = new AccountService(new AccountRepository(db));

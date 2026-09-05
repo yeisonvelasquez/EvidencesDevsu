@@ -7,6 +7,7 @@ namespace Accounts.Infrastructure;
 /// <summary>Repositorio EF Core para cuentas y movimientos inmutables.</summary>
 public sealed class AccountRepository(AccountsDbContext dbContext) : IAccountRepository
 {
+    public Task<bool> IsClientActiveAsync(Guid clientId, CancellationToken cancellationToken) => dbContext.ClientProjections.AnyAsync(x => x.ClientId == clientId && x.IsActive, cancellationToken);
     public async Task<IReadOnlyList<Account>> ListAsync(Guid? clientId, CancellationToken cancellationToken) => await dbContext.Accounts.AsNoTracking().Where(x => clientId == null || x.ClientId == clientId).OrderBy(x => x.AccountNumber).ToListAsync(cancellationToken);
     public Task<Account?> GetAsync(Guid id, CancellationToken cancellationToken) => dbContext.Accounts.Include(x => x.Transactions).SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     public Task<bool> ExistsByNumberAsync(string accountNumber, Guid? excludingId, CancellationToken cancellationToken) => dbContext.Accounts.AnyAsync(x => x.AccountNumber == accountNumber && (excludingId == null || x.Id != excludingId), cancellationToken);

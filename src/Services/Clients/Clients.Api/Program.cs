@@ -12,7 +12,8 @@ builder.Services.AddDbContext<ClientsDbContext>(options => options.UseNpgsql(bui
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-builder.Services.AddSingleton<IClientEventPublisher>(_ => new RabbitMqClientEventPublisher(builder.Configuration["RabbitMq:Host"] ?? "rabbitmq", builder.Configuration["RabbitMq:Username"] ?? "guest", builder.Configuration["RabbitMq:Password"] ?? "guest"));
+builder.Services.AddScoped<IClientEventStore, ClientEventStore>();
+builder.Services.AddHostedService(provider => new OutboxPublisher(provider.GetRequiredService<IServiceScopeFactory>(), builder.Configuration["RabbitMq:Host"] ?? "rabbitmq", builder.Configuration["RabbitMq:Username"] ?? "guest", builder.Configuration["RabbitMq:Password"] ?? "guest"));
 
 var app = builder.Build();
 app.UseMiddleware<ApiExceptionMiddleware>();
@@ -33,9 +34,9 @@ static async Task SeedAsync(WebApplication app)
     if (await db.Clients.AnyAsync()) return;
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
     db.Clients.AddRange(
-        new Client("Jose", "Lema", "M", 30, "0102030405", "Otalvaro sn y principal", "098254785", "jose.lema", hasher.Hash("1234"), Guid.Parse("10000000-0000-0000-0000-000000000001")),
-        new Client("Marianela", "Montalvo", "F", 28, "0102030406", "Amazonas y NNUU", "097548965", "marianela.montalvo", hasher.Hash("5678"), Guid.Parse("10000000-0000-0000-0000-000000000002")),
-        new Client("Juan", "Osorio", "M", 35, "0102030407", "13 junio y Equinoccial", "098874587", "juan.osorio", hasher.Hash("1245"), Guid.Parse("10000000-0000-0000-0000-000000000003")));
+        new Client(Guid.Parse("10000000-0000-0000-0000-000000000001"), "Jose", "Lema", "M", 30, "0102030405", "Otalvaro sn y principal", "098254785", hasher.Hash("1234")),
+        new Client(Guid.Parse("10000000-0000-0000-0000-000000000002"), "Marianela", "Montalvo", "F", 28, "0102030406", "Amazonas y NNUU", "097548965", hasher.Hash("5678")),
+        new Client(Guid.Parse("10000000-0000-0000-0000-000000000003"), "Juan", "Osorio", "M", 35, "0102030407", "13 junio y Equinoccial", "098874587", hasher.Hash("1245")));
     await db.SaveChangesAsync();
 }
 

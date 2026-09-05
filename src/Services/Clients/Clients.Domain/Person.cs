@@ -7,7 +7,6 @@ public abstract class Person
 
     protected Person(string firstName, string lastName, string gender, int age, string identification, string address, string phone)
     {
-        Id = Guid.NewGuid();
         FirstName = Require(firstName, nameof(firstName));
         LastName = Require(lastName, nameof(lastName));
         Gender = Require(gender, nameof(gender));
@@ -18,7 +17,6 @@ public abstract class Person
         Age = age;
     }
 
-    public Guid Id { get; protected set; }
     public string FirstName { get; protected set; } = string.Empty;
     public string LastName { get; protected set; } = string.Empty;
     public string Gender { get; protected set; } = string.Empty;

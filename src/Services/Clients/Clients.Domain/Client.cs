@@ -6,17 +6,17 @@ public sealed class Client : Person
     private Client() { }
 
     /// <summary>Crea un cliente nuevo con sus reglas básicas de dominio.</summary>
-    public Client(string firstName, string lastName, string gender, int age, string identification, string address, string phone, string clientId, string passwordHash, Guid? id = null)
+    public Client(Guid clientId, string firstName, string lastName, string gender, int age, string identification, string address, string phone, string passwordHash)
         : base(firstName, lastName, gender, age, identification, address, phone)
     {
-        Id = id ?? Id;
-        ClientId = Require(clientId, nameof(clientId));
+        if (clientId == Guid.Empty) throw new DomainException("El clientId es obligatorio.");
+        ClientId = clientId;
         PasswordHash = Require(passwordHash, nameof(passwordHash));
         IsActive = true;
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
-    public string ClientId { get; private set; } = string.Empty;
+    public Guid ClientId { get; private set; }
     public string PasswordHash { get; private set; } = string.Empty;
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }

@@ -13,6 +13,7 @@ public sealed class AccountService(IAccountRepository repository) : IAccountServ
 
     public async Task<AccountResponse> CreateAccountAsync(CreateAccountRequest request, CancellationToken cancellationToken)
     {
+        if (!await repository.IsClientActiveAsync(request.ClientId, cancellationToken)) throw new ValidationException("El cliente no existe o está inactivo.");
         if (await repository.ExistsByNumberAsync(request.AccountNumber, null, cancellationToken)) throw new ConflictException("El número de cuenta ya existe.");
         var account = new Account(request.AccountNumber, request.AccountType, request.InitialBalance, request.ClientId);
         await repository.AddAsync(account, cancellationToken);
@@ -36,6 +37,7 @@ public sealed class AccountService(IAccountRepository repository) : IAccountServ
             : null;
         if (existing is not null) return existing.ToResponse();
         var account = await repository.GetAsync(accountId, cancellationToken) ?? throw new NotFoundException("Cuenta no encontrada.");
+        if (!await repository.IsClientActiveAsync(request.ClientId, cancellationToken)) throw new ValidationException("El cliente no existe o está inactivo.");
         if (account.ClientId != request.ClientId) throw new ConflictException("La cuenta no pertenece al cliente indicado.");
         var transaction = account.RegisterTransaction(request.Amount, request.Type, DateTimeOffset.UtcNow);
         transaction.SetIdempotencyKey(request.IdempotencyKey);

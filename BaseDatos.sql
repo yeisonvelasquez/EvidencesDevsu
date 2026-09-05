@@ -1,8 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS clients (
-    id uuid PRIMARY KEY,
-    client_id varchar(80) NOT NULL UNIQUE,
+    client_id uuid PRIMARY KEY,
     first_name varchar(100) NOT NULL,
     last_name varchar(100) NOT NULL,
     gender varchar(30) NOT NULL,
@@ -47,3 +46,14 @@ CREATE TABLE IF NOT EXISTS client_projections (
     is_active boolean NOT NULL,
     updated_at timestamptz NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS outbox_messages (
+    id uuid PRIMARY KEY,
+    event_type varchar(100) NOT NULL,
+    payload jsonb NOT NULL,
+    occurred_at timestamptz NOT NULL,
+    processed_at timestamptz NULL,
+    attempts integer NOT NULL DEFAULT 0,
+    last_error text NULL
+);
+CREATE INDEX IF NOT EXISTS ix_outbox_messages_pending ON outbox_messages(processed_at, occurred_at) WHERE processed_at IS NULL;

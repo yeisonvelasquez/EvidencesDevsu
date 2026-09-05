@@ -14,10 +14,10 @@ public sealed class ClientsController(IClientService service) : ControllerBase
     public Task<IReadOnlyList<ClientResponse>> GetAll(CancellationToken cancellationToken) => service.ListAsync(cancellationToken);
 
     /// <summary>Obtiene un cliente por su identificador interno.</summary>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{clientId:guid}")]
     [ProducesResponseType(typeof(ClientResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public Task<ClientResponse> Get(Guid id, CancellationToken cancellationToken) => service.GetAsync(id, cancellationToken);
+    public Task<ClientResponse> Get(Guid clientId, CancellationToken cancellationToken) => service.GetAsync(clientId, cancellationToken);
 
     /// <summary>Crea un cliente almacenando su contraseña como hash.</summary>
     [HttpPost]
@@ -27,29 +27,29 @@ public sealed class ClientsController(IClientService service) : ControllerBase
     public async Task<ActionResult<ClientResponse>> Create(CreateClientRequest request, CancellationToken cancellationToken)
     {
         var response = await service.CreateAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
+        return CreatedAtAction(nameof(Get), new { clientId = response.ClientId }, response);
     }
 
     /// <summary>Actualiza un cliente existente.</summary>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{clientId:guid}")]
     [ProducesResponseType(typeof(ClientResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public Task<ClientResponse> Update(Guid id, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(id, request, cancellationToken);
+    public Task<ClientResponse> Update(Guid clientId, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(clientId, request, cancellationToken);
 
     /// <summary>Actualiza parcialmente un cliente usando el contrato validado.</summary>
-    [HttpPatch("{id:guid}")]
+    [HttpPatch("{clientId:guid}")]
     [ProducesResponseType(typeof(ClientResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public Task<ClientResponse> Patch(Guid id, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(id, request, cancellationToken);
+    public Task<ClientResponse> Patch(Guid clientId, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(clientId, request, cancellationToken);
 
     /// <summary>Elimina un cliente.</summary>
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{clientId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid clientId, CancellationToken cancellationToken)
     {
-        await service.DeleteAsync(id, cancellationToken);
+        await service.DeleteAsync(clientId, cancellationToken);
         return NoContent();
     }
 }
