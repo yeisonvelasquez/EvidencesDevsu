@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-devsu}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devsu_password}
     volumes: [clients-data:/var/lib/postgresql/data]
+    ports: ["5433:5432"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d clients"]
       interval: 5s
@@ -19,6 +20,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-devsu}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devsu_password}
     volumes: [accounts-data:/var/lib/postgresql/data]
+    ports: ["5434:5432"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d accounts"]
       interval: 5s
@@ -43,6 +45,7 @@ services:
       dockerfile: Dockerfile.clients
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      Swagger__Enabled: "true"
       ConnectionStrings__ClientsDatabase: Host=clients-db;Port=5432;Database=clients;Username=${POSTGRES_USER:-devsu};Password=${POSTGRES_PASSWORD:-devsu_password}
       RabbitMq__Host: rabbitmq
       RabbitMq__Username: ${RABBITMQ_USER:-guest}
@@ -58,6 +61,7 @@ services:
       dockerfile: Dockerfile.accounts
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      Swagger__Enabled: "true"
       ConnectionStrings__AccountsDatabase: Host=accounts-db;Port=5432;Database=accounts;Username=${POSTGRES_USER:-devsu};Password=${POSTGRES_PASSWORD:-devsu_password}
       RabbitMq__Host: rabbitmq
       RabbitMq__Username: ${RABBITMQ_USER:-guest}

@@ -16,7 +16,11 @@ builder.Services.AddSingleton<IClientEventPublisher>(_ => new RabbitMqClientEven
 
 var app = builder.Build();
 app.UseMiddleware<ApiExceptionMiddleware>();
-if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); }
+if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled"))
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.MapControllers();
 await SeedAsync(app);
 app.Run();

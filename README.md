@@ -43,6 +43,27 @@ Las APIs estarán disponibles en:
 - Swagger de cuentas: `http://localhost:8082/swagger`
 - RabbitMQ: `http://localhost:15672`
 
+### Credenciales de infraestructura
+
+Si no existe un archivo `.env`, Compose utiliza estos valores predeterminados:
+
+| Servicio | Usuario | Contraseña | Base de datos | Acceso desde el host |
+| --- | --- | --- | --- | --- |
+| RabbitMQ | `guest` | `guest` | No aplica | `http://localhost:15672` |
+| PostgreSQL clientes | `devsu` | `devsu_password` | `clients` | `localhost:5433` |
+| PostgreSQL cuentas | `devsu` | `devsu_password` | `accounts` | `localhost:5434` |
+
+Para usar credenciales propias, copie `.env.example` como `.env` antes de iniciar Compose. En ese caso, `RABBITMQ_USER`, `RABBITMQ_PASSWORD`, `POSTGRES_USER` y `POSTGRES_PASSWORD` reemplazan los valores predeterminados. Los volúmenes de PostgreSQL conservan las credenciales con las que fueron inicializados; para reinicializarlos use `docker compose down -v` y vuelva a levantar los servicios.
+
+Conexiones PostgreSQL desde una herramienta externa:
+
+```text
+Clientes: Host=localhost;Port=5433;Database=clients;Username=devsu;Password=devsu_password
+Cuentas:  Host=localhost;Port=5434;Database=accounts;Username=devsu;Password=devsu_password
+```
+
+Swagger se habilita explícitamente en los contenedores mediante `Swagger__Enabled=true`, aunque el entorno ASP.NET esté configurado como `Production`.
+
 La aplicación crea las tablas y carga datos de ejemplo automáticamente al iniciar. `BaseDatos.sql` contiene el esquema SQL explícito para revisión o despliegues controlados.
 
 Para detener y eliminar también los datos locales:
