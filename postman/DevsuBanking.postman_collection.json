@@ -1,0 +1,11 @@
+{
+  "info": { "name": "Devsu Banking", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "variable": [{ "key": "clientsUrl", "value": "http://localhost:8081" }, { "key": "accountsUrl", "value": "http://localhost:8082" }, { "key": "clientId", "value": "10000000-0000-0000-0000-000000000001" }, { "key": "accountId", "value": "" }],
+  "item": [
+    { "name": "List clients", "request": { "method": "GET", "url": "{{clientsUrl}}/api/v1/clientes" } },
+    { "name": "Create client", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Ana\",\n  \"lastName\": \"Torres\",\n  \"gender\": \"F\",\n  \"age\": 29,\n  \"identification\": \"0102030499\",\n  \"address\": \"Av. Central\",\n  \"phone\": \"0991112222\",\n  \"clientId\": \"ana.torres\",\n  \"password\": \"secret\"\n}" }, "url": "{{clientsUrl}}/api/v1/clientes" } },
+    { "name": "List accounts", "request": { "method": "GET", "url": "{{accountsUrl}}/api/v1/cuentas?clientId={{clientId}}" } },
+    { "name": "Register deposit", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"amount\": 100,\n  \"type\": \"Deposit\",\n  \"clientId\": \"{{clientId}}\",\n  \"idempotencyKey\": \"postman-unique-1\"\n}" }, "url": "{{accountsUrl}}/api/v1/movimientos/{{accountId}}" } },
+    { "name": "Statement", "request": { "method": "GET", "url": "{{accountsUrl}}/api/v1/reportes?cliente={{clientId}}&fechaInicio=2022-02-01&fechaFin=2022-02-28" } }
+  ]
+}
