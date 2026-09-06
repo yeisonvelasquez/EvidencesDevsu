@@ -1,5 +1,6 @@
 using Accounts.Api;
 using Accounts.Application;
+using Accounts.Application.Ports;
 using Accounts.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 

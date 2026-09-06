@@ -1,4 +1,5 @@
 using Accounts.Application;
+using Accounts.Application.Contracts;
 using Accounts.Domain;
 using Accounts.Infrastructure;
 using Microsoft.EntityFrameworkCore;

@@ -1,3 +1,6 @@
+using Accounts.Application.Contracts;
+using Accounts.Application.Mappings;
+using Accounts.Application.Ports;
 using Accounts.Domain;
 
 namespace Accounts.Application;

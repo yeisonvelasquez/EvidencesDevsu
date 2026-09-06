@@ -1,4 +1,5 @@
-using Accounts.Application;
+using Accounts.Application.Contracts;
+using Accounts.Application.Ports;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Accounts.Api.Controllers;
