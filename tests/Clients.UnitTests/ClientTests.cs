@@ -4,6 +4,26 @@ namespace Clients.UnitTests;
 
 public sealed class ClientTests
 {
+    [Theory]
+    [InlineData("M", "M")]
+    [InlineData("F", "F")]
+    [InlineData("Masculino", "M")]
+    [InlineData("Female", "F")]
+    public void Gender_ShouldNormalizeAllowedValues(string gender, string expectedGender)
+    {
+        var client = new Client(Guid.NewGuid(), "Ana", "Torres", gender, 29, "0102030499", "Av. Central", "0991112222", "hash");
+
+        Assert.Equal(expectedGender, client.Gender);
+    }
+
+    [Fact]
+    public void Gender_ShouldRejectUnknownValue()
+    {
+        var exception = Assert.Throws<DomainException>(() => new Client(Guid.NewGuid(), "Ana", "Torres", "X", 29, "0102030499", "Av. Central", "0991112222", "hash"));
+
+        Assert.Equal("El género debe ser M o F.", exception.Message);
+    }
+
     [Fact]
     public void CreateClient_ShouldSetActiveStateAndFullName()
     {

@@ -10,7 +10,7 @@ public sealed class ClientEventStore(ClientsDbContext dbContext) : IClientEventS
 {
     public Task EnqueueAsync(Client client, CancellationToken cancellationToken)
     {
-        var message = new ClientChangedEvent(Guid.NewGuid(), client.ClientId, client.FullName, client.IsActive, DateTimeOffset.UtcNow);
+        var message = new ClientChangedEvent(Guid.NewGuid(), client.ClientId, client.FullName, client.Identification, client.IsActive, DateTimeOffset.UtcNow);
         dbContext.OutboxMessages.Add(new OutboxMessage
         {
             Id = message.MessageId,

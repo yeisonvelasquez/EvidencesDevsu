@@ -43,6 +43,7 @@ CREATE INDEX IF NOT EXISTS ix_transactions_account_date ON transactions(account_
 CREATE TABLE IF NOT EXISTS client_projections (
     client_id uuid PRIMARY KEY,
     full_name varchar(220) NOT NULL,
+    identification varchar(40) NULL UNIQUE,
     is_active boolean NOT NULL,
     updated_at timestamptz NOT NULL
 );
@@ -57,3 +58,42 @@ CREATE TABLE IF NOT EXISTS outbox_messages (
     last_error text NULL
 );
 CREATE INDEX IF NOT EXISTS ix_outbox_messages_pending ON outbox_messages(processed_at, occurred_at) WHERE processed_at IS NULL;
+
+-- Movimientos iniciales solicitados. Requiere que las cuentas 225487 y 496825 ya existan.
+DO $$
+DECLARE
+    checking_account_id uuid;
+    savings_account_id uuid;
+BEGIN
+    SELECT id INTO checking_account_id FROM accounts WHERE account_number = '225487';
+    IF checking_account_id IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM transactions WHERE idempotency_key = 'seed-225487-20220210'
+    ) THEN
+        INSERT INTO transactions (
+            id, account_id, transaction_type, amount, previous_balance,
+            resulting_balance, occurred_at, idempotency_key
+        ) VALUES (
+            '22548700-0000-0000-0000-000000000001', checking_account_id,
+            'Deposit', 600.00, 100.00, 700.00,
+            '2022-02-10T00:00:00Z', 'seed-225487-20220210'
+        );
+        UPDATE accounts SET balance = 700.00
+        WHERE id = checking_account_id AND balance = 100.00;
+    END IF;
+
+    SELECT id INTO savings_account_id FROM accounts WHERE account_number = '496825';
+    IF savings_account_id IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM transactions WHERE idempotency_key = 'seed-496825-20220208'
+    ) THEN
+        INSERT INTO transactions (
+            id, account_id, transaction_type, amount, previous_balance,
+            resulting_balance, occurred_at, idempotency_key
+        ) VALUES (
+            '49682500-0000-0000-0000-000000000001', savings_account_id,
+            'Withdrawal', 540.00, 540.00, 0.00,
+            '2022-02-08T00:00:00Z', 'seed-496825-20220208'
+        );
+        UPDATE accounts SET balance = 0.00
+        WHERE id = savings_account_id AND balance = 540.00;
+    END IF;
+END $$;

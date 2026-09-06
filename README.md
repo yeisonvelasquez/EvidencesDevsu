@@ -78,11 +78,12 @@ Las rutas están versionadas bajo `/api/v1`.
 
 ### Clientes
 
+En `gender` se permiten `M`, `F`, `Male`, `Female`, `Masculino` o `Femenino`. La API normaliza el valor a `M` o `F`.
+
 - `GET /api/v1/clientes`
 - `GET /api/v1/clientes/{clientId}`
 - `POST /api/v1/clientes`
 - `PUT /api/v1/clientes/{clientId}`
-- `PATCH /api/v1/clientes/{clientId}`
 - `DELETE /api/v1/clientes/{clientId}`
 
 La contraseña de entrada nunca se persiste en texto plano: se almacena como hash BCrypt y nunca se retorna en una respuesta.
@@ -91,25 +92,37 @@ La contraseña de entrada nunca se persiste en texto plano: se almacena como has
 
 ### Cuentas
 
+En `accountType` se permiten `Savings`/`Ahorros` para cuentas de ahorro y `Checking`/`Corriente` para cuentas corrientes. La API normaliza el valor a `Savings` o `Checking`.
+
 - `GET /api/v1/cuentas?clientId={clientId}`
-- `GET /api/v1/cuentas/{id}`
+- `GET /api/v1/cuentas/{accountNumber}`
 - `POST /api/v1/cuentas`
 - `PUT /api/v1/cuentas/{id}`
-- `PATCH /api/v1/cuentas/{id}`
 
 ### Movimientos
 
-- `POST /api/v1/movimientos/{accountId}`
+En `type` se permiten únicamente `Deposit` para depósitos y `Withdrawal` para retiros. `amount` siempre debe ser positivo.
+
+- `POST /api/v1/movimientos/{accountNumber}`
 
 El valor se envía siempre positivo y el campo `type` determina si es `Deposit` o `Withdrawal`. Para reintentos se recomienda enviar `idempotencyKey`. Un retiro sin fondos responde `422` con el mensaje `Saldo no disponible`.
+El movimiento se registra sobre una cuenta usando su número de cuenta. El cliente no se envía en el body porque se obtiene internamente desde la cuenta.
+
+Ejemplo:
+POST /api/v1/movimientos/225487
+{
+  "amount": 100,
+  "type": "Deposit",
+  "idempotencyKey": "deposito-225487-001"
+}
 
 ### Reportes
 
 ```text
-GET /api/v1/reportes?cliente={clientId}&fechaInicio=2022-02-01&fechaFin=2022-02-28
+GET /api/v1/reportes?identificacion={numeroDocumento}&fechaInicio=2022-02-01&fechaFin=2022-02-28
 ```
 
-La respuesta incluye las cuentas asociadas, su saldo actual y el detalle de movimientos dentro del rango inclusivo. Las fechas usan ISO 8601.
+La respuesta incluye las cuentas asociadas, su saldo actual y el detalle de movimientos dentro del rango inclusivo. La identificación se resuelve mediante la proyección local de clientes y las fechas usan ISO 8601.
 
 ## Errores
 

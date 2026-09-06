@@ -5,6 +5,7 @@ public sealed record ClientChangedEvent(
     Guid MessageId,
     Guid ClientId,
     string FullName,
+    string? Identification,
     bool IsActive,
     DateTimeOffset OccurredAt);
 

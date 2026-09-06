@@ -9,7 +9,7 @@ public abstract class Person
     {
         FirstName = Require(firstName, nameof(firstName));
         LastName = Require(lastName, nameof(lastName));
-        Gender = Require(gender, nameof(gender));
+        Gender = NormalizeGender(gender);
         Identification = Require(identification, nameof(identification));
         Address = Require(address, nameof(address));
         Phone = Require(phone, nameof(phone));
@@ -29,6 +29,17 @@ public abstract class Person
     private static string Require(string value, string name) => string.IsNullOrWhiteSpace(value)
         ? throw new DomainException($"{name} es obligatorio.")
         : value.Trim();
+
+    protected static string NormalizeGender(string gender)
+    {
+        if (string.IsNullOrWhiteSpace(gender)) throw new DomainException("El género es obligatorio.");
+        return gender.Trim().ToLowerInvariant() switch
+        {
+            "m" or "male" or "masculino" => "M",
+            "f" or "female" or "femenino" => "F",
+            _ => throw new DomainException("El género debe ser M o F.")
+        };
+    }
 }
 
 /// <summary>Excepción para reglas invariantes del dominio.</summary>

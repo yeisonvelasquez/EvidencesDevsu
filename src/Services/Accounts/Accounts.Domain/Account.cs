@@ -9,12 +9,11 @@ public sealed class Account
     public Account(string accountNumber, string accountType, decimal initialBalance, Guid clientId)
     {
         if (string.IsNullOrWhiteSpace(accountNumber)) throw new DomainException("El número de cuenta es obligatorio.");
-        if (string.IsNullOrWhiteSpace(accountType)) throw new DomainException("El tipo de cuenta es obligatorio.");
         if (initialBalance < 0) throw new DomainException("El saldo inicial no puede ser negativo.");
         if (clientId == Guid.Empty) throw new DomainException("El cliente es obligatorio.");
         Id = Guid.NewGuid();
         AccountNumber = accountNumber.Trim();
-        AccountType = accountType.Trim();
+        AccountType = NormalizeAccountType(accountType);
         Balance = initialBalance;
         ClientId = clientId;
         IsActive = true;
@@ -51,10 +50,21 @@ public sealed class Account
     /// <summary>Actualiza únicamente los datos administrativos de la cuenta.</summary>
     public void SetDetails(string accountType, bool isActive)
     {
-        AccountType = accountType.Trim();
+        AccountType = NormalizeAccountType(accountType);
         IsActive = isActive;
         Version++;
         UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static string NormalizeAccountType(string accountType)
+    {
+        if (string.IsNullOrWhiteSpace(accountType)) throw new DomainException("El tipo de cuenta es obligatorio.");
+        return accountType.Trim().ToLowerInvariant() switch
+        {
+            "savings" or "ahorros" => "Savings",
+            "checking" or "corriente" => "Checking",
+            _ => throw new DomainException("El tipo de cuenta debe ser Savings o Checking.")
+        };
     }
 }
 

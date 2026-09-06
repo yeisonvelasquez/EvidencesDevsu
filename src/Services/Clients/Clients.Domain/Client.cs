@@ -27,7 +27,7 @@ public sealed class Client : Person
     {
         FirstName = string.IsNullOrWhiteSpace(firstName) ? throw new DomainException("El nombre es obligatorio.") : firstName.Trim();
         LastName = string.IsNullOrWhiteSpace(lastName) ? throw new DomainException("El apellido es obligatorio.") : lastName.Trim();
-        Gender = string.IsNullOrWhiteSpace(gender) ? throw new DomainException("El género es obligatorio.") : gender.Trim();
+        Gender = NormalizeGender(gender);
         Identification = string.IsNullOrWhiteSpace(identification) ? throw new DomainException("La identificación es obligatoria.") : identification.Trim();
         Address = string.IsNullOrWhiteSpace(address) ? throw new DomainException("La dirección es obligatoria.") : address.Trim();
         Phone = string.IsNullOrWhiteSpace(phone) ? throw new DomainException("El teléfono es obligatorio.") : phone.Trim();

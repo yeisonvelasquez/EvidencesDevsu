@@ -46,6 +46,8 @@ public sealed partial class AccountsDbContext(DbContextOptions<AccountsDbContext
             entity.ToTable("client_projections");
             entity.HasKey(x => x.ClientId);
             entity.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(220).IsRequired();
+            entity.Property(x => x.Identification).HasColumnName("identification").HasMaxLength(40);
+            entity.HasIndex(x => x.Identification).IsUnique().HasFilter("identification IS NOT NULL");
             entity.Property(x => x.UpdatedAt).HasColumnName("updated_at").IsRequired();
         });
     }

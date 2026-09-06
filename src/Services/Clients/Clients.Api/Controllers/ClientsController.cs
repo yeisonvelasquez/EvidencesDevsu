@@ -20,6 +20,7 @@ public sealed class ClientsController(IClientService service) : ControllerBase
     public Task<ClientResponse> Get(Guid clientId, CancellationToken cancellationToken) => service.GetAsync(clientId, cancellationToken);
 
     /// <summary>Crea un cliente almacenando su contraseña como hash.</summary>
+    /// <remarks>Gender debe ser M o F. También se aceptan Male, Female, Masculino o Femenino.</remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ClientResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,12 +37,6 @@ public sealed class ClientsController(IClientService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<ClientResponse> Update(Guid clientId, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(clientId, request, cancellationToken);
-
-    /// <summary>Actualiza parcialmente un cliente usando el contrato validado.</summary>
-    [HttpPatch("{clientId:guid}")]
-    [ProducesResponseType(typeof(ClientResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public Task<ClientResponse> Patch(Guid clientId, UpdateClientRequest request, CancellationToken cancellationToken) => service.UpdateAsync(clientId, request, cancellationToken);
 
     /// <summary>Elimina un cliente.</summary>
     [HttpDelete("{clientId:guid}")]

@@ -17,8 +17,8 @@ public sealed class ClientService(IClientRepository repository, IPasswordHasher 
         if (await repository.ExistsByIdentificationAsync(request.Identification, null, cancellationToken)) throw new ConflictException("La identificación ya existe.");
         var client = new Client(Guid.NewGuid(), request.FirstName, request.LastName, request.Gender, request.Age, request.Identification, request.Address, request.Phone, passwordHasher.Hash(request.Password));
         await repository.AddAsync(client, cancellationToken);
-        await repository.SaveChangesAsync(cancellationToken);
         await eventStore.EnqueueAsync(client, cancellationToken);
+        await repository.SaveChangesAsync(cancellationToken);
         return client.ToResponse();
     }
 
@@ -27,8 +27,8 @@ public sealed class ClientService(IClientRepository repository, IPasswordHasher 
         var client = await repository.GetAsync(id, cancellationToken) ?? throw new NotFoundException("Cliente no encontrado.");
         if (await repository.ExistsByIdentificationAsync(request.Identification, id, cancellationToken)) throw new ConflictException("La identificación ya existe.");
         client.Update(request.FirstName, request.LastName, request.Gender, request.Age, request.Identification, request.Address, request.Phone, request.IsActive);
-        await repository.SaveChangesAsync(cancellationToken);
         await eventStore.EnqueueAsync(client, cancellationToken);
+        await repository.SaveChangesAsync(cancellationToken);
         return client.ToResponse();
     }
 

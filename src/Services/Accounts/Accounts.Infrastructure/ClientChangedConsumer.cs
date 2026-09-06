@@ -28,8 +28,8 @@ public sealed class ClientChangedConsumer(IServiceScopeFactory scopeFactory, str
             await using var scope = scopeFactory.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<AccountsDbContext>();
             var projection = await db.ClientProjections.SingleOrDefaultAsync(x => x.ClientId == message.ClientId, stoppingToken);
-            if (projection is null) db.ClientProjections.Add(new ClientProjection { ClientId = message.ClientId, FullName = message.FullName, IsActive = message.IsActive, UpdatedAt = message.OccurredAt });
-            else if (message.OccurredAt > projection.UpdatedAt) { projection.FullName = message.FullName; projection.IsActive = message.IsActive; projection.UpdatedAt = message.OccurredAt; }
+            if (projection is null) db.ClientProjections.Add(new ClientProjection { ClientId = message.ClientId, FullName = message.FullName, Identification = message.Identification, IsActive = message.IsActive, UpdatedAt = message.OccurredAt });
+            else if (message.OccurredAt > projection.UpdatedAt) { projection.FullName = message.FullName; projection.Identification = message.Identification ?? projection.Identification; projection.IsActive = message.IsActive; projection.UpdatedAt = message.OccurredAt; }
             await db.SaveChangesAsync(stoppingToken);
             channel.BasicAck(eventArgs.DeliveryTag, false);
         };

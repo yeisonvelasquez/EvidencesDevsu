@@ -4,6 +4,26 @@ namespace Accounts.UnitTests;
 
 public sealed class AccountTests
 {
+    [Theory]
+    [InlineData("Savings", "Savings")]
+    [InlineData("Checking", "Checking")]
+    [InlineData("ahorros", "Savings")]
+    [InlineData("corriente", "Checking")]
+    public void AccountType_ShouldNormalizeAllowedValues(string accountType, string expectedType)
+    {
+        var account = new Account("478758", accountType, 100, Guid.NewGuid());
+
+        Assert.Equal(expectedType, account.AccountType);
+    }
+
+    [Fact]
+    public void AccountType_ShouldRejectUnknownValue()
+    {
+        var exception = Assert.Throws<DomainException>(() => new Account("478758", "string", 100, Guid.NewGuid()));
+
+        Assert.Equal("El tipo de cuenta debe ser Savings o Checking.", exception.Message);
+    }
+
     [Fact]
     public void RegisterDeposit_ShouldUpdateBalanceAndSnapshot()
     {

@@ -19,9 +19,11 @@ public sealed class AccountPersistenceTests
         await db.SaveChangesAsync();
         var service = new AccountService(new AccountRepository(db));
 
-        var result = await service.RegisterTransactionAsync(account.Id, new CreateTransactionRequest(600, TransactionType.Deposit, account.ClientId, "integration-1"), CancellationToken.None);
-
+        var result = await service.RegisterTransactionAsync("225487", new CreateTransactionRequest(600, TransactionType.Deposit, "integration-1"), CancellationToken.None);
+        var retry  = await service.RegisterTransactionAsync("225487", new CreateTransactionRequest(600, TransactionType.Deposit, "integration-1"), CancellationToken.None);
         var stored = await db.Accounts.Include(x => x.Transactions).SingleAsync();
+
+        Assert.Equal(result.Id, retry.Id);
         Assert.Equal(700, result.ResultingBalance);
         Assert.Equal(700, stored.Balance);
         Assert.Single(stored.Transactions);
