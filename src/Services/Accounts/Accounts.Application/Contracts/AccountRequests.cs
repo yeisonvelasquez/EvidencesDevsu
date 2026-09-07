@@ -19,3 +19,9 @@ public sealed record CreateTransactionRequest(
     decimal Amount,
     TransactionType Type,
     string? IdempotencyKey);
+
+/// <summary>Parámetros para consultar un estado de cuenta.</summary>
+public sealed record StatementRequest(
+    string Identificacion,
+    DateOnly FechaInicio,
+    DateOnly FechaFin);

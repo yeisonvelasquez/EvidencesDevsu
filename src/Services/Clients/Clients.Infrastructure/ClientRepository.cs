@@ -1,4 +1,4 @@
-using Clients.Application;
+using Clients.Application.Ports;
 using Clients.Domain;
 using Microsoft.EntityFrameworkCore;
 

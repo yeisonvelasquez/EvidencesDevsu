@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Accounts.Application;
+using Accounts.Application.Exceptions;
 using Accounts.Domain;
 
 namespace Accounts.Api;

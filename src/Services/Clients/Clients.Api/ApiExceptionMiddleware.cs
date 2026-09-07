@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Clients.Application;
+using Clients.Application.Exceptions;
 using Clients.Domain;
 
 namespace Clients.Api;

@@ -1,3 +1,7 @@
+using Clients.Application.Contracts;
+using Clients.Application.Exceptions;
+using Clients.Application.Mappings;
+using Clients.Application.Ports;
 using Clients.Domain;
 
 namespace Clients.Application;
@@ -13,7 +17,6 @@ public sealed class ClientService(IClientRepository repository, IPasswordHasher 
 
     public async Task<ClientResponse> CreateAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Password)) throw new ValidationException("La contraseña es obligatoria.");
         if (await repository.ExistsByIdentificationAsync(request.Identification, null, cancellationToken)) throw new ConflictException("La identificación ya existe.");
         var client = new Client(Guid.NewGuid(), request.FirstName, request.LastName, request.Gender, request.Age, request.Identification, request.Address, request.Phone, passwordHasher.Hash(request.Password));
         await repository.AddAsync(client, cancellationToken);
@@ -40,11 +43,3 @@ public sealed class ClientService(IClientRepository repository, IPasswordHasher 
     }
 }
 
-/// <summary>Excepción de recurso inexistente.</summary>
-public sealed class NotFoundException(string message) : Exception(message);
-
-/// <summary>Excepción de conflicto con el estado actual.</summary>
-public sealed class ConflictException(string message) : Exception(message);
-
-/// <summary>Excepción para datos de entrada que no cumplen el contrato.</summary>
-public sealed class ValidationException(string message) : Exception(message);

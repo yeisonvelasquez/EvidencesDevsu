@@ -15,7 +15,4 @@ public interface IAccountService
 
     Task<AccountResponse> UpdateAccountAsync(Guid id, UpdateAccountRequest request, CancellationToken cancellationToken);
 
-    Task<TransactionResponse> RegisterTransactionAsync(string accountNumber, CreateTransactionRequest request, CancellationToken cancellationToken);
-
-    Task<StatementResponse> GetStatementAsync(string identification, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken);
 }

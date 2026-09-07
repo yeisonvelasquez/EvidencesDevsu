@@ -25,6 +25,40 @@ public sealed class AccountTests
     }
 
     [Fact]
+    public void RegisterTransaction_ShouldRejectUnknownType()
+    {
+        var account = new Account("478758", "Savings", 100, Guid.NewGuid());
+
+        var exception = Assert.Throws<DomainException>(() => account.RegisterTransaction(50, (TransactionType)99, DateTimeOffset.UtcNow));
+
+        Assert.Equal("El tipo de movimiento no es válido.", exception.Message);
+        Assert.Equal(100, account.Balance);
+        Assert.Empty(account.Transactions);
+    }
+
+    [Fact]
+    public void RegisterTransaction_ShouldRejectDefaultDate()
+    {
+        var account = new Account("478758", "Savings", 100, Guid.NewGuid());
+
+        var exception = Assert.Throws<DomainException>(() => account.RegisterTransaction(50, TransactionType.Deposit, default));
+
+        Assert.Equal("La fecha del movimiento es obligatoria.", exception.Message);
+        Assert.Equal(100, account.Balance);
+    }
+
+    [Fact]
+    public void Transactions_ShouldNotExposeMutableCollection()
+    {
+        var account = new Account("478758", "Savings", 100, Guid.NewGuid());
+
+        account.RegisterTransaction(50, TransactionType.Deposit, DateTimeOffset.UtcNow);
+
+        Assert.IsAssignableFrom<IReadOnlyCollection<Transaction>>(account.Transactions);
+        Assert.Single(account.Transactions);
+    }
+
+    [Fact]
     public void RegisterDeposit_ShouldUpdateBalanceAndSnapshot()
     {
         var account = new Account("478758", "Savings", 100, Guid.NewGuid());

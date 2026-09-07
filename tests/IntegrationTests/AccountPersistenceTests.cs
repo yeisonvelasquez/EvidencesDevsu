@@ -18,7 +18,7 @@ public sealed class AccountPersistenceTests
         db.ClientProjections.Add(new ClientProjection { ClientId = account.ClientId, FullName = "Test Client", IsActive = true, UpdatedAt = DateTimeOffset.UtcNow });
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
-        var service = new AccountService(new AccountRepository(db));
+        var service = new TransactionService(new TransactionRepository(db));
 
         var result = await service.RegisterTransactionAsync("225487", new CreateTransactionRequest(600, TransactionType.Deposit, "integration-1"), CancellationToken.None);
         var retry  = await service.RegisterTransactionAsync("225487", new CreateTransactionRequest(600, TransactionType.Deposit, "integration-1"), CancellationToken.None);

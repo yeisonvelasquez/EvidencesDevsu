@@ -1,11 +1,17 @@
 using Clients.Api;
 using Clients.Application;
-using Clients.Domain;
+using Clients.Application.Ports;
+using Clients.Application.Validators;
 using Clients.Infrastructure;
+using Clients.Infrastructure.Seeding;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateClientRequestValidator>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Clients.Api.xml")));
 builder.Services.AddDbContext<ClientsDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("ClientsDatabase")));
@@ -13,6 +19,7 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IClientEventStore, ClientEventStore>();
+builder.Services.AddScoped<ClientsDatabaseSeeder>();
 builder.Services.AddHostedService(provider => new OutboxPublisher(provider.GetRequiredService<IServiceScopeFactory>(), builder.Configuration["RabbitMq:Host"] ?? "rabbitmq", builder.Configuration["RabbitMq:Username"] ?? "guest", builder.Configuration["RabbitMq:Password"] ?? "guest"));
 
 var app = builder.Build();
@@ -23,21 +30,10 @@ if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swa
     app.UseSwaggerUI();
 }
 app.MapControllers();
-await SeedAsync(app);
-app.Run();
-
-static async Task SeedAsync(WebApplication app)
+await using (var scope = app.Services.CreateAsyncScope())
 {
-    await using var scope = app.Services.CreateAsyncScope();
-    var db = scope.ServiceProvider.GetRequiredService<ClientsDbContext>();
-    await db.Database.EnsureCreatedAsync();
-    if (await db.Clients.AnyAsync()) return;
-    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-    db.Clients.AddRange(
-        new Client(Guid.Parse("10000000-0000-0000-0000-000000000001"), "Jose", "Lema", "M", 30, "0102030405", "Otalvaro sn y principal", "098254785", hasher.Hash("1234")),
-        new Client(Guid.Parse("10000000-0000-0000-0000-000000000002"), "Marianela", "Montalvo", "F", 28, "0102030406", "Amazonas y NNUU", "097548965", hasher.Hash("5678")),
-        new Client(Guid.Parse("10000000-0000-0000-0000-000000000003"), "Juan", "Osorio", "M", 35, "0102030407", "13 junio y Equinoccial", "098874587", hasher.Hash("1245")));
-    await db.SaveChangesAsync();
+    await scope.ServiceProvider.GetRequiredService<ClientsDatabaseSeeder>().SeedAsync();
 }
+app.Run();
 
 public partial class Program;

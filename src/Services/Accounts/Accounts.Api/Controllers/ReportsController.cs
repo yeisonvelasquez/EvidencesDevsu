@@ -7,18 +7,21 @@ namespace Accounts.Api.Controllers;
 /// <summary>Consulta estados de cuenta por cliente y rango de fechas.</summary>
 [ApiController]
 [Route("api/v1/reportes")]
-public sealed class ReportsController(IAccountService service) : ControllerBase
+public sealed class ReportsController(IStatementService service) : ControllerBase
 {
     /// <summary>
     /// Retorna cuentas y movimientos del período indicado para una identificación.
     /// </summary>
-    /// <param name="identificacion">Número de documento de identidad del cliente</param>
-    /// <param name="fechaInicio">Fecha inicial del período a consultar en formato YYYY-MM-DD.</param>
-    /// <param name="fechaFin">Fecha final del período a consultar en formato YYYY-MM-DD.</param>
+    /// <remarks>
+    /// La consulta recibe el número de documento, no el GUID interno del cliente.
+    /// Las fechas deben usar el formato ISO 8601 YYYY-MM-DD.
+    /// Ejemplo: GET /api/v1/reportes?identificacion=0102030406&amp;fechaInicio=2022-02-01&amp;fechaFin=2022-02-28.
+    /// </remarks>
+    /// <param name="request">Ejemplo: identificacion=0102030406, fechaInicio=2022-02-01, fechaFin=2022-02-28.</param>
     /// <param name="cancellationToken">Token para cancelar la operación.</param>
     /// <returns>Lista de las transacciones asociadas a las cuentas del cliente consultado</returns>
     [HttpGet]
     [ProducesResponseType(typeof(StatementResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public Task<StatementResponse> Get(string identificacion, DateOnly fechaInicio, DateOnly fechaFin, CancellationToken cancellationToken) => service.GetStatementAsync(identificacion, fechaInicio, fechaFin, cancellationToken);
+    public Task<StatementResponse> Get([FromQuery] StatementRequest request, CancellationToken cancellationToken) => service.GetStatementAsync(request.Identificacion, request.FechaInicio, request.FechaFin, cancellationToken);
 }
